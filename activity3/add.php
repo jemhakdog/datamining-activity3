@@ -17,13 +17,19 @@ $departmentsResult = $conn->query($departmentsQuery);
 $positionsQuery = "SELECT DISTINCT Position FROM employee";
 $positionsResult = $conn->query($positionsQuery);
 // Initialize variables
-$firstName = $lastName = $department = $position = $salary = $city = $status = '';
-$firstNameError = $lastNameError = $departmentError = $positionError = $salaryError = $cityError = $statusError = '';
+$employeeID = $firstName = $lastName = $middleName = $department = $position = $salary = $city = $status = $hireDate = $age = $email = '';
+$employeeIDError = $firstNameError = $lastNameError = $middleNameError = $departmentError = $positionError = $salaryError = $cityError = $statusError = $hireDateError = $ageError = $emailError = '';
 $successMessage = '';
 $errorMessage = '';
 
 // Insert employee record
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (empty($_POST['EmployeeID'])) {
+        $employeeIDError = "Employee ID is required";
+    } else {
+        $employeeID = $_POST['EmployeeID'];
+    }
+
     if (empty($_POST['FirstName'])) {
         $firstNameError = "First Name is required";
     } else {
@@ -34,6 +40,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $lastNameError = "Last Name is required";
     } else {
         $lastName = $_POST['LastName'];
+    }
+
+    if (empty($_POST['MiddleName'])) {
+        $middleNameError = "Middle Name is required";
+    } else {
+        $middleName = $_POST['MiddleName'];
     }
 
     if (empty($_POST['Department'])) {
@@ -48,10 +60,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $position = $_POST['Position'];
     }
 
+    if (empty($_POST['HireDate'])) {
+        $hireDateError = "Hire Date is required";
+    } else {
+        $hireDate = $_POST['HireDate'];
+    }
+
     if (empty($_POST['Salary'])) {
         $salaryError = "Salary is required";
     } else {
         $salary = $_POST['Salary'];
+    }
+
+    if (empty($_POST['Age'])) {
+        $ageError = "Age is required";
+    } else {
+        $age = $_POST['Age'];
     }
 
     if (empty($_POST['City'])) {
@@ -60,16 +84,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $city = $_POST['City'];
     }
 
+    if (empty($_POST['Email'])) {
+        $emailError = "Email is required";
+    } else {
+        $email = $_POST['Email'];
+    }
+
     if (empty($_POST['Status'])) {
         $statusError = "Status is required";
     } else {
         $status = $_POST['Status'];
     }
 
-    if (empty($firstNameError) && empty($lastNameError) && empty($departmentError) && empty($positionError) && empty($salaryError) && empty($cityError) && empty($statusError)) {
-        $insertQuery = "INSERT INTO employee (FirstName, LastName, Department, Position, Salary, City, Status) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    if (empty($employeeIDError) && empty($firstNameError) && empty($lastNameError) && empty($middleNameError) && empty($departmentError) && empty($positionError) && empty($salaryError) && empty($cityError) && empty($emailError) && empty($statusError)) {
+        $insertQuery = "INSERT INTO employee (EmployeeID, FirstName, LastName, MiddleName, Department, Position, HireDate, Salary, Age, City, Email, Status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($insertQuery);
-        $stmt->bind_param("ssssdss", $firstName, $lastName, $department, $position, $salary, $city, $status);
+        $stmt->bind_param("isssssiddsss", $employeeID, $firstName, $lastName, $middleName, $department, $position, $hireDate, $salary, $age, $city, $email, $status);
         if ($stmt->execute()) {
             $successMessage = "Employee added successfully";
             header("Location: index.php?success=" . urlencode($successMessage));
@@ -99,6 +129,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <p class="error"><?php echo $errorMessage; ?></p>
         <?php endif; ?>
         <form method="POST">
+            <label>Employee ID:</label>
+            <input type="text" name="EmployeeID" value="<?php echo htmlspecialchars($employeeID); ?>" required>
+            <span class="error"><?php echo $employeeIDError; ?></span>
+            <br>
             <label>First Name:</label>
             <input type="text" name="FirstName" value="<?php echo htmlspecialchars($firstName); ?>" required>
             <span class="error"><?php echo $firstNameError; ?></span>
@@ -106,6 +140,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <label>Last Name:</label>
             <input type="text" name="LastName" value="<?php echo htmlspecialchars($lastName); ?>" required>
             <span class="error"><?php echo $lastNameError; ?></span>
+            <br>
+            <label>Middle Name:</label>
+            <input type="text" name="MiddleName" value="<?php echo htmlspecialchars($middleName); ?>" required>
+            <span class="error"><?php echo $middleNameError; ?></span>
             <br>
             <label>Department:</label>
             <select name="Department" required>
@@ -125,13 +163,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </select>
             <span class="error"><?php echo $positionError; ?></span>
             <br>
+            <label>Hire Date:</label>
+            <input type="date" name="HireDate" value="<?php echo htmlspecialchars($hireDate); ?>" required>
+            <span class="error"><?php echo $hireDateError; ?></span>
+            <br>
             <label>Salary:</label>
             <input type="number" name="Salary" value="<?php echo htmlspecialchars($salary); ?>" required>
             <span class="error"><?php echo $salaryError; ?></span>
             <br>
+            <label>Age:</label>
+            <input type="number" name="Age" value="<?php echo htmlspecialchars($age); ?>" required>
+            <span class="error"><?php echo $ageError; ?></span>
+            <br>
             <label>City:</label>
             <input type="text" name="City" value="<?php echo htmlspecialchars($city); ?>" required>
             <span class="error"><?php echo $cityError; ?></span>
+            <br>
+            <label>Email:</label>
+            <input type="email" name="Email" value="<?php echo htmlspecialchars($email); ?>" required>
+            <span class="error"><?php echo $emailError; ?></span>
             <br>
             <label for="Status">Status:</label>
             <select name="Status" id="Status" required>
